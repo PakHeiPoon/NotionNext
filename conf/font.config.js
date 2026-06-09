@@ -12,7 +12,9 @@ module.exports = {
     // 'https://npm.elemecdn.com/lxgw-wenkai-webfont@1.6.0/style.css',
     'https://fonts.googleapis.com/css?family=Bitter:300,400,700&display=swap',
     'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap',
-    'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&display=swap'
+    'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&display=swap',
+    // 终端风等宽字体：用于 Logo、标题、标签等，营造 hacker-zine 调性
+    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap'
   ],
 
   // 字体优化配置

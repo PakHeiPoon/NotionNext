@@ -53,9 +53,9 @@ const PostGroupLatest = props => {
               </div>
               <div
                 className={
-                  (selected ? ' text-green-400 ' : 'dark:text-gray-400 ') +
-                  ' text-sm overflow-x-hidden hover:text-green-600 px-2 duration-200 w-full rounded ' +
-                  ' hover:text-green-400 cursor-pointer items-center flex'
+                  (selected ? ' text-[#4af08a] ' : 'dark:text-gray-400 ') +
+                  ' text-sm overflow-x-hidden hover:text-[#0fae5f] px-2 duration-200 w-full rounded ' +
+                  ' hover:text-[#4af08a] cursor-pointer items-center flex'
                 }>
                 <div>
                   <div className='line-clamp-2 menu-link'>{post.title}</div>
