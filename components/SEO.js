@@ -50,6 +50,13 @@ const SEO = props => {
     url = `${url}/${meta.slug}`
     image = meta.image || '/bg_image.jpg'
   }
+  // 文章页使用动态终端风 OG 卡片作为社交分享大图（中文标题也清晰）
+  if (post?.title) {
+    const ogCat = post?.category?.[0]
+      ? `&cat=${encodeURIComponent(post.category[0])}`
+      : ''
+    image = `${LINK}/api/og?title=${encodeURIComponent(post.title)}${ogCat}`
+  }
   const TITLE = siteConfig('TITLE')
   const title = meta?.title || TITLE
   const description = meta?.description || `${siteInfo?.description}`
@@ -133,7 +140,6 @@ const SEO = props => {
       <meta name='keywords' content={keywords} />
       <meta name='description' content={description} />
       <meta name='author' content={AUTHOR} />
-      <meta name='generator' content='NotionNext' />
 
       {/* 语言和地区 */}
       <meta httpEquiv='content-language' content={siteConfig('LANG')} />
@@ -153,8 +159,8 @@ const SEO = props => {
 
       {/* Twitter Card 元数据 */}
       <meta name='twitter:card' content='summary_large_image' />
-      <meta name='twitter:site' content={siteConfig('TWITTER_SITE', '@NotionNext')} />
-      <meta name='twitter:creator' content={siteConfig('TWITTER_CREATOR', '@NotionNext')} />
+      <meta name='twitter:site' content={siteConfig('TWITTER_SITE', '')} />
+      <meta name='twitter:creator' content={siteConfig('TWITTER_CREATOR', '')} />
       <meta name='twitter:title' content={title} />
       <meta name='twitter:description' content={description} />
       <meta name='twitter:image' content={image} />
