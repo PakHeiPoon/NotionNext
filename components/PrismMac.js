@@ -200,27 +200,27 @@ const renderMermaid = mermaidCDN => {
     }
   }
 
+  // 扫描页面中的 mermaid 代码块并触发渲染（幂等：已包裹/已渲染的自动跳过）
+  const scanAndRender = () => {
+    const article = document.querySelector('#notion-article')
+    if (!article) return
+    article
+      .querySelectorAll('.notion-code.language-mermaid')
+      .forEach(wrapMermaidBlock)
+    renderAll()
+  }
+
+  // 正文是异步客户端渲染的，单次扫描可能赶在代码块出现之前；
+  // 多次延迟重扫 + childList 监听，确保块出现后必被渲染（与时序无关）。
+  scanAndRender()
+  ;[600, 1500, 3000, 5000].forEach(t => setTimeout(scanAndRender, t))
+
   const article = document.querySelector('#notion-article')
-  if (!article) return
-
-  // 1) 首次加载主动扫描已存在的 mermaid 块（修复初次进入流程图不渲染的问题）
-  article
-    .querySelectorAll('.notion-code.language-mermaid')
-    .forEach(wrapMermaidBlock)
-  renderAll()
-
-  // 2) 继续监听后续动态加入的 mermaid 代码块
-  const observer = new MutationObserver(mutationsList => {
-    let changed = false
-    for (const m of mutationsList) {
-      if (m.target.className === 'notion-code language-mermaid') {
-        wrapMermaidBlock(m.target)
-        changed = true
-      }
-    }
-    if (changed) renderAll()
-  })
-  observer.observe(article, { attributes: true, subtree: true })
+  if (article) {
+    const observer = new MutationObserver(() => scanAndRender())
+    observer.observe(article, { childList: true, subtree: true })
+    setTimeout(() => observer.disconnect(), 8000)
+  }
 }
 
 function renderPrismMac(codeLineNumbers) {
