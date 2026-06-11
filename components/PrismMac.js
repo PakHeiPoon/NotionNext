@@ -183,7 +183,18 @@ const renderMermaid = mermaidCDN => {
     if (needLoad) {
       loadExternalResource(mermaidCDN, 'js').then(() => {
         setTimeout(() => {
-          window.mermaid?.contentLoaded()
+          try {
+            // mermaid 11 用 run() 渲染（contentLoaded 在新版本不可靠）；主题跟随深/浅色
+            const isDark =
+              document.documentElement.classList.contains('dark')
+            window.mermaid?.initialize?.({
+              startOnLoad: false,
+              theme: isDark ? 'dark' : 'default'
+            })
+            window.mermaid?.run?.()
+          } catch (e) {
+            window.mermaid?.contentLoaded?.()
+          }
         }, 100)
       })
     }
