@@ -161,43 +161,55 @@ const renderCollapseCode = (codeCollapse, codeCollapseExpandDefault) => {
  * 将mermaid语言 渲染成图片
  */
 const renderMermaid = mermaidCDN => {
+  // 将单个 mermaid 代码块包裹为 <pre class="mermaid">，供 mermaid 渲染
+  const wrapMermaidBlock = el => {
+    if (!el || el.className !== 'notion-code language-mermaid') return
+    const chart = el.querySelector('code')?.textContent
+    if (chart && !el.querySelector('.mermaid')) {
+      const mermaidChart = document.createElement('pre')
+      mermaidChart.className = 'mermaid'
+      mermaidChart.innerHTML = chart
+      el.appendChild(mermaidChart)
+    }
+  }
+
+  // 仅当存在尚未渲染为 svg 的 .mermaid 块时才加载 CDN 并触发渲染
+  const renderAll = () => {
+    const mermaidsSvg = document.querySelectorAll('.mermaid')
+    let needLoad = false
+    for (const e of mermaidsSvg) {
+      if (e?.firstChild?.nodeName !== 'svg') needLoad = true
+    }
+    if (needLoad) {
+      loadExternalResource(mermaidCDN, 'js').then(() => {
+        setTimeout(() => {
+          window.mermaid?.contentLoaded()
+        }, 100)
+      })
+    }
+  }
+
+  const article = document.querySelector('#notion-article')
+  if (!article) return
+
+  // 1) 首次加载主动扫描已存在的 mermaid 块（修复初次进入流程图不渲染的问题）
+  article
+    .querySelectorAll('.notion-code.language-mermaid')
+    .forEach(wrapMermaidBlock)
+  renderAll()
+
+  // 2) 继续监听后续动态加入的 mermaid 代码块
   const observer = new MutationObserver(mutationsList => {
+    let changed = false
     for (const m of mutationsList) {
       if (m.target.className === 'notion-code language-mermaid') {
-        const chart = m.target.querySelector('code').textContent
-        if (chart && !m.target.querySelector('.mermaid')) {
-          const mermaidChart = document.createElement('pre')
-          mermaidChart.className = 'mermaid'
-          mermaidChart.innerHTML = chart
-          m.target.appendChild(mermaidChart)
-        }
-
-        const mermaidsSvg = document.querySelectorAll('.mermaid')
-        if (mermaidsSvg) {
-          let needLoad = false
-          for (const e of mermaidsSvg) {
-            if (e?.firstChild?.nodeName !== 'svg') {
-              needLoad = true
-            }
-          }
-          if (needLoad) {
-            loadExternalResource(mermaidCDN, 'js').then(url => {
-              setTimeout(() => {
-                const mermaid = window.mermaid
-                mermaid?.contentLoaded()
-              }, 100)
-            })
-          }
-        }
+        wrapMermaidBlock(m.target)
+        changed = true
       }
     }
+    if (changed) renderAll()
   })
-  if (document.querySelector('#notion-article')) {
-    observer.observe(document.querySelector('#notion-article'), {
-      attributes: true,
-      subtree: true
-    })
-  }
+  observer.observe(article, { attributes: true, subtree: true })
 }
 
 function renderPrismMac(codeLineNumbers) {
